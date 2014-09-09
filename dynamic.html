@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dynamic Data with Leaflet</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="js/jquery.min.js"></script>
+  <link rel="stylesheet" href="css/leaflet.css">
+  <script src="js/leaflet.js"></script>
+</head>
+<body>
+<div id="map" style="width: 800px; height: 600px"></div>
+
+<script>
+  function initMap() {
+    var tileUrl;
+
+    // Note: the [Wikipedia page on Downtown Portland Oregon](http://en.wikipedia.org/wiki/Downtown_Portland)
+    // gives its location as 45.51935°N 122.67962°W. We'll center the map at that location with zoom level 12.
+    //
+    var map = L.map('map').setView([45.51935, -122.67962], 12);
+
+    // @todo: Pick a tileserver by uncommenting one of these values for tileUrl:
+    //
+    // To use the MapBox example tiles:
+    // tileUrl = 'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png';
+    //
+    // To use the Python SimpleHTTPServer you've set up on port 8887:
+    // tileUrl = 'http://localhost:8887/tiles/{z}/{x}/{y}.png';
+    //
+    // To use the TileStream server you've set up on port 8888:
+    tileUrl = 'http://localhost:8888/v2/portland_from_osm/{z}/{x}/{y}.png';
+    //
+    L.tileLayer(tileUrl, {
+      minZoom: 10,
+      maxZoom: 16,
+      attribution: 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+          'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+      id: 'examples.map-i86knfo3'
+
+    }).addTo(map);
+
+      $.ajax({
+        url: 'http://localhost:3000/amenities',
+        dataType: 'json',
+        type: 'get'
+      }).done(function (data) {
+          var geojson = L.geoJson(data, {
+            pointToLayer: function (feature, latlng) {
+              var
+                fillColor,
+                fillOpacity = 0.75;
+
+              // Note: as this is a quick & dirty demo, fill colors have been assigned arbitrarily
+              // to 12 cuisines found tagged to restaurants that appear in Sep 2014 OpenStreetMap
+              // data for Portland, OR. Cuisine popularity is not accounted for. Any other cuisine,
+              // or restaurants that have not been tagged with a cuisine, get a dark gray fill color
+              // with low opacity. In contrast, the colors themselves are well-considered; their
+              // values come from the 12 data class/qualitative nature/Set3 at http://colorbrewer2.org/
+              switch (feature.properties.cuisine) {
+                case 'chinese':
+                  fillColor = '#8dd3c7';
+                  break;
+                case 'burger':
+                  fillColor = '#ffffb3';
+                  break;
+                case 'american':
+                  fillColor = '#bebada';
+                  break;
+                case 'thai':
+                  fillColor = '#fb8072';
+                  break;
+                case 'pizza':
+                  fillColor = '#80b1d3';
+                  break;
+                case 'spanish':
+                  fillColor = '#fdb462';
+                  break;
+                case 'mexican':
+                  fillColor = '#b3de69';
+                  break;
+                case 'sushi':
+                  fillColor = '#fccde5';
+                  break;
+                case 'cuban':
+                  fillColor = '#d9d9d9';
+                  break;
+                case 'regional':
+                  fillColor = '#bc80bd';
+                  break;
+                case 'vietnamese':
+                  fillColor = '#ccebc5';
+                  break;
+                case 'doughnut':
+                  fillColor = '#ffed6f';
+                  break;
+                default:
+                  fillColor = '#222';
+                  fillOpacity = 0.1;
+                  break;
+              }
+
+              var marker = L.circleMarker(latlng, {
+                radius: 6,
+                weight: 1,
+                color: "#000",
+                opacity: 1,
+                fillColor: fillColor,
+                fillOpacity: fillOpacity
+              });
+
+              map.on('load zoomend', function () {
+                var currentZoom = map.getZoom();
+                if (currentZoom < 13) {
+                  marker.setRadius(6);
+                } else {
+                  if (currentZoom < 15) {
+                    marker.setRadius(9);
+                  } else {
+                    marker.setRadius(12);
+                  }
+                }
+              });
+
+              return marker;
+            },
+            onEachFeature: function (feature, layer) {
+              layer.bindPopup(
+                '<div class="center">' +
+                  '<b>'+feature.properties.name+'</b>' +
+                  '</div>'
+              );
+            }
+          }).addTo(map);
+        });
+
+  }
+
+  initMap();
+
+</script>
+</body>
+</html>
