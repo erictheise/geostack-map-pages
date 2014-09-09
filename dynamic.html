@@ -52,46 +52,69 @@
                 fillOpacity = 0.75;
 
               // Note: as this is a quick & dirty demo, fill colors have been assigned arbitrarily
-              // to 12 cuisines found tagged to restaurants that appear in Sep 2014 OpenStreetMap
-              // data for Portland, OR. Cuisine popularity is not accounted for. Any other cuisine,
-              // or restaurants that have not been tagged with a cuisine, get a dark gray fill color
-              // with low opacity. In contrast, the colors themselves are well-considered; their
-              // values come from the 12 data class/qualitative nature/Set3 at http://colorbrewer2.org/
+              // to the top 12 cuisines found tagged to restaurants in Sep 2014 OpenStreetMap
+              // data for Portland, OR. Any other cuisine, or restaurants that have not been tagged
+              // with a cuisine, get a dark gray fill color having low opacity. The color values
+              // come from the 12 data class/qualitative nature/Set3 at http://colorbrewer2.org/
+              //
+              // SELECT tags->'cuisine' AS cuisine, count(tags->'cuisine')
+              // FROM planet_osm_point
+              // WHERE amenity = 'restaurant'
+              // GROUP BY tags->'cuisine'
+              // ORDER BY count desc
+              // LIMIT 12;
+              //
+              // cuisine  | count
+              //----------+-------
+              // pizza    |    47
+              // mexican  |    42
+              // american |    32
+              // chinese  |    23
+              // thai     |    20
+              // japanese |    18
+              // italian  |    17
+              // burger   |    17
+              // sushi    |    16
+              // asian    |    11
+              // regional |     9
+              // sandwich |     8
+              //    (12 rows)
+              //
               switch (feature.properties.cuisine) {
-                case 'chinese':
+                case 'pizza':
                   fillColor = '#8dd3c7';
                   break;
-                case 'burger':
+                case 'mexican':
                   fillColor = '#ffffb3';
                   break;
                 case 'american':
                   fillColor = '#bebada';
                   break;
-                case 'thai':
+                case 'chinese':
                   fillColor = '#fb8072';
                   break;
-                case 'pizza':
+                case 'thai':
                   fillColor = '#80b1d3';
                   break;
-                case 'spanish':
+                case 'japanese':
                   fillColor = '#fdb462';
                   break;
-                case 'mexican':
+                case 'italian':
                   fillColor = '#b3de69';
                   break;
-                case 'sushi':
+                case 'burger':
                   fillColor = '#fccde5';
                   break;
-                case 'cuban':
+                case 'sushi':
                   fillColor = '#d9d9d9';
                   break;
-                case 'regional':
+                case 'asian':
                   fillColor = '#bc80bd';
                   break;
-                case 'vietnamese':
+                case 'regional':
                   fillColor = '#ccebc5';
                   break;
-                case 'doughnut':
+                case 'sandwich':
                   fillColor = '#ffed6f';
                   break;
                 default:
